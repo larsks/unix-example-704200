@@ -1,0 +1,68 @@
+- hosts: router
+  gather_facts: false
+  become: true
+  tasks:
+    - name: configure lan0 device
+      shell: |
+        ip addr add 10.133.8.1/24 dev eth1
+        ip link set eth1 up
+
+    - name: configure bridge device
+      shell: |
+        ip link add br0 type bridge
+        ip link set master br0 dev eth2
+        ip link set master br0 dev eth3
+        ip addr add 10.133.7.1/24 dev br0
+        ip link set eth2 up
+        ip link set eth3 up
+        ip link set br0 up
+
+    - name: configure ip forwarding
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        state: present
+        sysctl_set: true
+
+    - name: install packages
+      package:
+        name: "{{ packages }}"
+        state: installed
+      vars:
+        packages:
+          - tcpdump
+          - nftables
+          - iptables-nft
+
+    - name: configure firewall
+      shell: |
+        iptables -t nat -A POSTROUTING -s 10.133.7.0/24 -o eth0 -j MASQUERADE
+        iptables -t nat -A POSTROUTING -s 10.133.8.0/24 -o eth0 -j MASQUERADE
+
+- hosts: server
+  gather_facts: false
+  become: true
+  tasks:
+    - name: configure interface
+      shell: |
+        ip addr add 10.133.8.11/24 dev eth1
+        ip link set eth1 up
+
+    - name: set default route
+      shell: |
+        ip route delete default via 192.168.121.1
+        ip route add default via 10.133.8.1
+
+- hosts: client
+  gather_facts: false
+  become: true
+  tasks:
+    - name: configure interface
+      shell: |
+        ip addr add 10.133.7.100/24 dev eth1
+        ip link set eth1 up
+
+    - name: set default route
+      shell: |
+        ip route delete default via 192.168.121.1
+        ip route add default via 10.133.7.1

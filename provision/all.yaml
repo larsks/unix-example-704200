@@ -19,6 +19,8 @@
         state: present
         ip4:
           - 10.133.7.1/24
+      notify:
+        - reload networking
 
     - name: add bridge ports
       community.general.nmcli:
@@ -31,6 +33,8 @@
       loop:
         - eth2
         - eth3
+      notify:
+        - reload networking
 
     - name: configure eth1
       community.general.nmcli:
@@ -40,6 +44,8 @@
         ip4:
           - 10.133.8.1/24
         state: present
+      notify:
+        - reload networking
 
     - name: configure ip forwarding
       sysctl:
@@ -72,6 +78,10 @@
       service:
         name: nftables
         state: restarted
+
+    - name: reload networking
+      shell: |
+        nmcli n off && nmcli n on
 
 - hosts: client:server
   become: true

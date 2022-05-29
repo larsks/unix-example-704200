@@ -13,19 +13,6 @@ This reproduces the network environment described in <https://unix.stackexchange
 
 ## Bringing things up
 
-### Create libvirt networks
-
-Vagrant doesn't want to create libvirt networks without setting an address on the host bridge, so instead we pre-create the networks:
-
-```
-for lan in {0..2}; do
-  virsh net-define net/lan$lan.xml
-  virsh net-start lan$lan
-done
-```
-
-### Start vagrant machines
-
 Due to [bugs in Vagrant][], you must bring the environment up with the `--no-parallel` option:
 
 ```

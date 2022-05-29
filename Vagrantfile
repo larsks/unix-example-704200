@@ -19,13 +19,19 @@ Vagrant.configure("2") do |config|
     end
 
     router.vm.network :private_network,
-      :libvirt__network_name => "lan0"
+      :libvirt__network_name => "lan0",
+      :libvirt__forward_mode => "veryisolated",
+      :libvirt__dhcp_enabled => false
 
     router.vm.network :private_network,
-      :libvirt__network_name => "lan1"
+      :libvirt__network_name => "lan1",
+      :libvirt__forward_mode => "veryisolated",
+      :libvirt__dhcp_enabled => false
 
     router.vm.network :private_network,
-      :libvirt__network_name => "lan2"
+      :libvirt__network_name => "lan2",
+      :libvirt__forward_mode => "veryisolated",
+      :libvirt__dhcp_enabled => false
   end
 
   config.vm.define "server" do |server|
@@ -37,7 +43,9 @@ Vagrant.configure("2") do |config|
     end
 
     server.vm.network :private_network,
-      :libvirt__network_name => "lan0"
+      :libvirt__network_name => "lan0",
+      :libvirt__forward_mode => "veryisolated",
+      :libvirt__dhcp_enabled => false
   end
 
   config.vm.define "client" do |client|
@@ -49,7 +57,9 @@ Vagrant.configure("2") do |config|
     end
 
     client.vm.network :private_network,
-      :libvirt__network_name => "lan1"
+      :libvirt__network_name => "lan1",
+      :libvirt__forward_mode => "veryisolated",
+      :libvirt__dhcp_enabled => false
   end
 
   config.vm.provision :ansible do |ansible|

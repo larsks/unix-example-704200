@@ -1,0 +1,5 @@
+<network>
+  <name>lan0</name>
+  <bridge name='vb-lan0' stp='on' delay='0'/>
+</network>
+

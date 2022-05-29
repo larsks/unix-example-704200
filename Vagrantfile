@@ -19,26 +19,13 @@ Vagrant.configure("2") do |config|
     end
 
     router.vm.network :private_network,
-      :ip => "10.133.8.1",
-      :libvirt__netmask => "255.255.255.0",
-      :libvirt__network_name => "lan0",
-      :libvirt__dhcp_enabled => false,
-      :libvirt__forward_mode => "none"
+      :libvirt__network_name => "lan0"
 
     router.vm.network :private_network,
-      :ip => "10.133.7.1",
-      :libvirt__netmask => "255.255.255.0",
-      :libvirt__network_name => "lan1",
-      :libvirt__dhcp_enabled => false,
-      :libvirt__forward_mode => "none"
+      :libvirt__network_name => "lan1"
 
     router.vm.network :private_network,
-      :ip => "10.133.9.1",
-      :libvirt__netmask => "255.255.255.0",
-      :libvirt__network_name => "lan2",
-      :libvirt__dhcp_enabled => false,
-      :libvirt__forward_mode => "none"
-
+      :libvirt__network_name => "lan2"
   end
 
   config.vm.define "server" do |server|
@@ -50,11 +37,7 @@ Vagrant.configure("2") do |config|
     end
 
     server.vm.network :private_network,
-      :ip => "10.133.8.11",
-      :libvirt__netmask => "255.255.255.0",
-      :libvirt__network_name => "lan0",
-      :libvirt__dhcp_enabled => false,
-      :libvirt__forward_mode => "none"
+      :libvirt__network_name => "lan0"
   end
 
   config.vm.define "client" do |client|
@@ -66,16 +49,21 @@ Vagrant.configure("2") do |config|
     end
 
     client.vm.network :private_network,
-      :ip => "10.133.7.100",
-      :libvirt__netmask => "255.255.255.0",
-      :libvirt__network_name => "lan1",
-      :libvirt__dhcp_enabled => false,
-      :libvirt__forward_mode => "none"
+      :libvirt__network_name => "lan1"
   end
 
   config.vm.provision :ansible do |ansible|
     ansible.compatibility_mode = "2.0"
     ansible.playbook = "provision/all.yaml"
+    ansible.galaxy_role_file = "provision/requirements.yaml"
+    ansible.host_vars = {
+      "client" => {
+        "ip_address": "10.133.7.100/24"
+      },
+      "server" => {
+        "ip_address": "10.133.8.11/24"
+      }
+    }
   end
 
 end

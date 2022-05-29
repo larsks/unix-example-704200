@@ -48,13 +48,30 @@
         state: present
         sysctl_set: true
 
-    - name: configure firewall
-      shell: |
-        iptables -t nat -C POSTROUTING -s 10.133.7.0/24 -o eth0 -j MASQUERADE ||
-        iptables -t nat -I POSTROUTING -s 10.133.7.0/24 -o eth0 -j MASQUERADE
+    - name: configure firewall ruleset
+      copy:
+        dest: /etc/sysconfig/nftables.conf
+        content: |
+          table ip nat {
+                  chain POSTROUTING {
+                          type nat hook postrouting priority srcnat; policy accept;
+                          oifname "eth0" ip saddr 10.133.8.0/24 counter masquerade
+                          oifname "eth0" ip saddr 10.133.7.0/24 counter masquerade
+                  }
+          }
+      notify: restart nftables
 
-        iptables -t nat -C POSTROUTING -s 10.133.8.0/24 -o eth0 -j MASQUERADE ||
-        iptables -t nat -I POSTROUTING -s 10.133.8.0/24 -o eth0 -j MASQUERADE
+    - name: activate nftables services
+      service:
+        name: nftables
+        state: started
+        enabled: true
+
+  handlers:
+    - name: restart nftables
+      service:
+        name: nftables
+        state: restarted
 
 - hosts: client:server
   become: true
